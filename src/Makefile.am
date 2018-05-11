@@ -135,5 +135,19 @@ scute_la_CPPFLAGS = -I$(srcdir)/../include \
 scute_la_SOURCES = $(sources)
 
 if ENABLE_SIGKEY
-scute_la_CPPFLAGS += -DSIGKEY
+lib_LTLIBRARIES += scutesig.la
+scutesig_la_LDFLAGS = $(scute_res_ldflag) $(no_undefined) -module -avoid-version $(export_symbols) \
+	$(scute_version_script_cmd) -version-info \
+	@LIBSCUTE_LT_CURRENT@:@LIBSCUTE_LT_REVISION@:@LIBSCUTE_LT_AGE@
+scutesig_la_DEPENDENCIES = @LTLIBOBJS@ $(srcdir)/libscute.vers $(scute_deps)
+
+# scute_libadd must come BEFORE libassuan and gpg-error, because we
+# override it on Windows targets.
+scutesig_la_LIBADD = $(scute_libadd) \
+	@LTLIBOBJS@ @LIBASSUAN_LIBS@ @GPG_ERROR_LIBS@
+
+scutesig_la_CPPFLAGS = -I$(srcdir)/../include \
+	@LIBASSUAN_CFLAGS@ @GPG_ERROR_CFLAGS@
+scutesig_la_SOURCES = $(sources)
+scutesig_la_CPPFLAGS += -DSIGKEY
 endif
